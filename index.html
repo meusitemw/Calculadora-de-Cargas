@@ -2,335 +2,191 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IMPERIAL ALIMENTOS - Calculadora de Cargas</title>
-    <meta name="description" content="Calculadora de cargas para distribuição de fardos e sacarias da Imperial Alimentos">
-    <meta name="theme-color" content="#2e7d32">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGROVALE - Calculadora de Cargas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/favicon.ico">
+    <!-- Fontes personalizadas -->
+    <link rel="preload" href="assets/fonts/Agrovalle-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/Agrovalle-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <img src="" alt="IMPERIAL ALIMENTOS" class="brand-logo">
-                <h1 class="brand-name">Calculadora</h1>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header>
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="Logo Agrovale" class="logo">
             </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li class="nav-item active" data-tab="fardo-misto">
-                        <i class="fas fa-boxes"></i>
-                        <span>Fardo Misto</span>
-                    </li>
-                    <li class="nav-item" data-tab="fardo-simples">
-                        <i class="fas fa-box"></i>
-                        <span>Apenas Fardos</span>
-                    </li>
-                    <li class="nav-item" data-tab="sacaria">
-                        <i class="fas fa-bag-shopping"></i>
-                        <span>Sacaria</span>
-                    </li>
-                    <li class="nav-item" data-tab="historico">
-                        <i class="fas fa-history"></i>
-                        <span>Histórico</span>
-                    </li>
-                </ul>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
+            <div class="title-container">
+                <h1>CALCULADORA DE CARGAS</h1>
+                <p class="version">Versão 3.0</p>
+            </div>
+        </header>
+
+        <!-- Abas -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'fardo-misto')">Fardo Cristal + Demerara</button>
+            <button class="tab-button" onclick="openTab(event, 'fardo-simples')">Apenas Fardos</button>
+            <button class="tab-button" onclick="openTab(event, 'sacaria')">Sacaria</button>
+            <button class="tab-button" onclick="openTab(event, 'historico')">Histórico</button>
+        </div>
+
+        <!-- Conteúdo das abas -->
+        <div id="fardo-misto" class="tab-content" style="display: block;">
+            <div class="form-container">
+                <div class="input-section">
+                    <h2>Calcular Carga</h2>
+                    <div class="form-group">
+                        <label for="total-fardo-misto">Total:</label>
+                        <input type="number" id="total-fardo-misto" min="1" value="1070">
                     </div>
-                    <div class="user-info">
-                        <span class="user-name">Operador</span>
-                        <span class="user-role">Usuário</span>
+                    <div class="form-group">
+                        <label for="lotes-fardo-misto">Nº Lotes (use .5 para meia):</label>
+                        <input type="number" id="lotes-fardo-misto" min="0.5" step="0.5" value="10.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="cristal">Cristal:</label>
+                        <input type="number" id="cristal" min="0" value="500">
+                    </div>
+                    <div class="form-group">
+                        <label for="demerara">Demerara:</label>
+                        <input type="number" id="demerara" min="0" value="570">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularFardoMisto()">Calcular Fardos</button>
+                </div>
+                
+                <div class="result-section">
+                    <h2>Resultado</h2>
+                    <div id="result-fardo-misto" class="result-table"></div>
+                    <div id="validation-message" class="message"></div>
+                    <div class="chart-container">
+                        <canvas id="chart-fardo-misto"></canvas>
                     </div>
                 </div>
-            </div>
-        </aside>
-        
-        <div class="sidebar-overlay"></div>
-        
-        <main class="main-content">
-            <header class="top-bar">
-                <button class="menu-toggle" aria-label="Abrir menu">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h2 class="page-title">Calculadora de Cargas</h2>
-                <div class="topbar-actions">
-                    <button class="btn-history-mobile" id="btn-history-mobile" aria-label="Histórico">
-                        <i class="fas fa-history"></i>
-                    </button>
-                    <button class="btn-print" id="btn-print-current" aria-label="Imprimir">
-                        <i class="fas fa-print"></i>
-                    </button>
+                
+                <div class="info-section">
+                    <h2>Informações Adicionais</h2>
+                    <div class="form-group">
+                        <label for="data-fardo-misto">Data:</label>
+                        <input type="date" id="data-fardo-misto">
+                    </div>
+                    <div class="form-group">
+                        <label for="placa-fardo-misto">Placa do caminhão:</label>
+                        <input type="text" id="placa-fardo-misto">
+                    </div>
+                    <div class="form-group">
+                        <label for="obs-fardo-misto">Observações:</label>
+                        <textarea id="obs-fardo-misto" rows="4"></textarea>
+                    </div>
                 </div>
-            </header>
-            
-            <div class="content-area">
-                <!-- Fardo Misto -->
-                <section id="fardo-misto" class="content-section active">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-boxes"></i> Fardo Misto (Cristal + Demerara)</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-column">
-                                    <div class="input-group">
-                                        <label for="total-fardo">Total de Fardos</label>
-                                        <input type="number" id="total-fardo" min="1" value="1070" required>
-                                        <div id="total-fardo-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="lotes-fardo">Número de Lotes</label>
-                                        <input type="number" id="lotes-fardo" min="0.5" step="0.5" value="10.5" placeholder="Use 0.5 para meia carga" required>
-                                        <div id="lotes-fardo-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="cristal">Quantidade de Cristal</label>
-                                        <input type="number" id="cristal" min="0" value="500" required>
-                                        <div id="cristal-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="demerara">Quantidade de Demerara</label>
-                                        <input type="number" id="demerara" min="0" value="570" required>
-                                        <div id="demerara-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="tipo-inicial">Tipo Inicial</label>
-                                        <select id="tipo-inicial" class="form-control">
-                                            <option value="cristal">Cristal</option>
-                                            <option value="demerara">Demerara</option>
-                                        </select>
-                                    </div>
-                                    <div class="buttons-group">
-                                        <button id="btn-fardo" class="btn btn-primary btn-calculate">
-                                            <i class="fas fa-calculator"></i> Calcular Distribuição
-                                        </button>
-                                        <button id="btn-export-fardo-misto" class="btn btn-secondary">
-                                            <i class="fas fa-file-pdf"></i> Exportar PDF
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="results-column">
-                                    <div id="result-fardo-misto" class="result-container">
-                                        <p>Preencha os dados e clique em "Calcular Distribuição" para ver os resultados.</p>
-                                    </div>
-                                    <div class="chart-container mt-3">
-                                        <canvas id="chart-fardo-misto"></canvas>
-                                    </div>
-                                </div>
-                                <div class="info-column">
-                                    <div class="input-group">
-                                        <label for="data1">Data do Carregamento</label>
-                                        <input type="date" id="data1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="placa1">Placa do Caminhão</label>
-                                        <input type="text" id="placa1" placeholder="ABC1D23" maxlength="7">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="lider1">Líder</label>
-                                        <input type="text" id="lider1" placeholder="Nome do líder">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="conferente1">Conferente</label>
-                                        <input type="text" id="conferente1" placeholder="Nome do conferente">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="carregador1">Carregador</label>
-                                        <input type="text" id="carregador1" placeholder="Nome do carregador">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Apenas Fardos -->
-                <section id="fardo-simples" class="content-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-box"></i> Apenas Fardos</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-column">
-                                    <div class="input-group">
-                                        <label for="total-cristal">Total de Fardos</label>
-                                        <input type="number" id="total-cristal" min="1" value="1070" required>
-                                        <div id="total-cristal-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="lotes-cristal">Número de Lotes</label>
-                                        <input type="number" id="lotes-cristal" min="0.5" step="0.5" value="10.5" placeholder="Use 0.5 para meia carga" required>
-                                        <div id="lotes-cristal-error" class="error-message"></div>
-                                    </div>
-                                    <div class="buttons-group">
-                                        <button id="btn-cristal" class="btn btn-primary btn-calculate">
-                                            <i class="fas fa-calculator"></i> Calcular Distribuição
-                                        </button>
-                                        <button id="btn-export-fardo-simples" class="btn btn-secondary">
-                                            <i class="fas fa-file-pdf"></i> Exportar PDF
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="results-column">
-                                    <div id="result-fardo-simples" class="result-container">
-                                        <p>Preencha os dados e clique em "Calcular Distribuição" para ver os resultados.</p>
-                                    </div>
-                                    <div class="chart-container mt-3">
-                                        <canvas id="chart-fardo-simples"></canvas>
-                                    </div>
-                                </div>
-                                <div class="info-column">
-                                    <div class="input-group">
-                                        <label for="data2">Data do Carregamento</label>
-                                        <input type="date" id="data2">
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="placa2">Placa do Caminhão</label>
-                                        <input type="text" id="placa2" placeholder="ABC1D23" maxlength="7">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="lider2">Líder</label>
-                                        <input type="text" id="lider2" placeholder="Nome do líder">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="conferente2">Conferente</label>
-                                        <input type="text" id="conferente2" placeholder="Nome do conferente">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="carregador2">Carregador</label>
-                                        <input type="text" id="carregador2" placeholder="Nome do carregador">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Sacaria -->
-                <section id="sacaria" class="content-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-bag-shopping"></i> Sacaria</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-column">
-                                    <div class="input-group">
-                                        <label for="total-sacos">Total de Sacos</label>
-                                        <input type="number" id="total-sacos" min="1" value="300" required>
-                                        <div id="total-sacos-error" class="error-message"></div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="lotes-sacos">Número de Lotes</label>
-                                        <input type="number" id="lotes-sacos" min="0.5" step="0.5" value="11.0" placeholder="Use 0.5 para meia carga" required>
-                                        <div id="lotes-sacos-error" class="error-message"></div>
-                                    </div>
-                                    <div class="buttons-group">
-                                        <button id="btn-sacos" class="btn btn-primary btn-calculate">
-                                            <i class="fas fa-calculator"></i> Calcular Distribuição
-                                        </button>
-                                        <button id="btn-export-sacaria" class="btn btn-secondary">
-                                            <i class="fas fa-file-pdf"></i> Exportar PDF
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="results-column">
-                                    <div id="result-sacaria" class="result-container">
-                                        <p>Preencha os dados e clique em "Calcular Distribuição" para ver os resultados.</p>
-                                    </div>
-                                    <div class="chart-container mt-3">
-                                        <canvas id="chart-sacaria"></canvas>
-                                    </div>
-                                </div>
-                                <div class="info-column">
-                                    <div class="input-group">
-                                        <label for="data3">Data do Carregamento</label>
-                                        <input type="date" id="data3">
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="placa3">Placa do Caminhão</label>
-                                        <input type="text" id="placa3" placeholder="ABC1D23" maxlength="7">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="lider3">Líder</label>
-                                        <input type="text" id="lider3" placeholder="Nome do líder">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="conferente3">Conferente</label>
-                                        <input type="text" id="conferente3" placeholder="Nome do conferente">
-                                    </div>
-                                    <div class="input-group responsavel">
-                                        <label for="carregador3">Carregador</label>
-                                        <input type="text" id="carregador3" placeholder="Nome do carregador">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Histórico -->
-                <section id="historico" class="content-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-history"></i> Histórico de Cálculos</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="history-actions mb-3">
-                                <button id="btn-refresh-history" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-sync-alt"></i> Atualizar
-                                </button>
-                                <button id="btn-clear-history" class="btn btn-sm btn-danger ms-2">
-                                    <i class="fas fa-trash"></i> Limpar Histórico
-                                </button>
-                            </div>
-                            <div id="history-list" class="history-container">
-                                <div class="empty-history">Carregando histórico...</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-            
-            <footer class="app-footer">
-                <p>MW System &copy; <span id="current-year"></span> | Calculadora de Cargas v5.1</p>
-            </footer>
-        </main>
-    </div>
-
-    <!-- Loader para operações -->
-    <div id="loader" class="loader-container">
-        <div class="loader"></div>
-    </div>
-
-    <!-- Modal para confirmações -->
-    <div id="modal-confirm" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Confirmação</h4>
-                <button type="button" class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="modal-message">Tem certeza que deseja realizar esta ação?</p>
-            </div>
-            <div class="modal-footer">
-                <button id="modal-cancel" class="btn btn-sm">Cancelar</button>
-                <button id="modal-confirm-btn" class="btn btn-sm btn-primary">Confirmar</button>
             </div>
         </div>
+
+        <div id="fardo-simples" class="tab-content">
+            <div class="form-container">
+                <div class="input-section">
+                    <h2>Calcular Carga</h2>
+                    <div class="form-group">
+                        <label for="total-fardo-simples">Total de Fardos:</label>
+                        <input type="number" id="total-fardo-simples" min="1" value="1070">
+                    </div>
+                    <div class="form-group">
+                        <label for="lotes-fardo-simples">Nº Lotes (use .5 para meia):</label>
+                        <input type="number" id="lotes-fardo-simples" min="0.5" step="0.5" value="10.5">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularFardoSimples()">Calcular Fardos</button>
+                </div>
+                
+                <div class="result-section">
+                    <h2>Resultado</h2>
+                    <div id="result-fardo-simples" class="result-table"></div>
+                    <div class="chart-container">
+                        <canvas id="chart-fardo-simples"></canvas>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h2>Informações Adicionais</h2>
+                    <div class="form-group">
+                        <label for="data-fardo-simples">Data:</label>
+                        <input type="date" id="data-fardo-simples">
+                    </div>
+                    <div class="form-group">
+                        <label for="placa-fardo-simples">Placa do caminhão:</label>
+                        <input type="text" id="placa-fardo-simples">
+                    </div>
+                    <div class="form-group">
+                        <label for="obs-fardo-simples">Observações:</label>
+                        <textarea id="obs-fardo-simples" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sacaria" class="tab-content">
+            <div class="form-container">
+                <div class="input-section">
+                    <h2>Calcular Carga</h2>
+                    <div class="form-group">
+                        <label for="total-sacos">Total de Sacos:</label>
+                        <input type="number" id="total-sacos" min="1" value="300">
+                    </div>
+                    <div class="form-group">
+                        <label for="lotes-sacos">Nº Lotes Sacos:</label>
+                        <input type="number" id="lotes-sacos" min="0.5" step="0.5" value="11.0">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularSacaria()">Calcular Sacos</button>
+                </div>
+                
+                <div class="result-section">
+                    <h2>Resultado</h2>
+                    <div id="result-sacaria" class="result-table"></div>
+                    <div class="chart-container">
+                        <canvas id="chart-sacaria"></canvas>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h2>Informações Adicionais</h2>
+                    <div class="form-group">
+                        <label for="data-sacaria">Data:</label>
+                        <input type="date" id="data-sacaria">
+                    </div>
+                    <div class="form-group">
+                        <label for="placa-sacaria">Placa do caminhão:</label>
+                        <input type="text" id="placa-sacaria">
+                    </div>
+                    <div class="form-group">
+                        <label for="obs-sacaria">Observações:</label>
+                        <textarea id="obs-sacaria" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba de Histórico -->
+        <div id="historico" class="tab-content">
+            <div class="history-container">
+                <h2>Histórico de Cálculos</h2>
+                <div class="history-controls">
+                    <button id="clear-history" class="secondary-btn">Limpar Histórico</button>
+                    <button id="export-history" class="secondary-btn">Exportar CSV</button>
+                </div>
+                <div id="history-list" class="history-list">
+                    <p class="no-history">Nenhum cálculo registrado ainda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé -->
+        <footer>
+            <hr>
+            <p>APP Calculadora de Cargas <strong>vs-3.0</strong></p>
+        </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
